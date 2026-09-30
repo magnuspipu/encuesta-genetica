@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>¿Yo decidí o me hicieron decidir?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#e8edf4;--ink:#14213d;--soft:#51607c;--card:#fff;--line:#c9d2e0;--acc:#0f8b8d;--warn:#c8553d;--r:14px}
+@media (prefers-color-scheme:dark){:root{--bg:#0e1626;--ink:#e8edf7;--soft:#9aa8c4;--card:#172239;--line:#2b3a59;--acc:#3cc1c3;--warn:#ff8a6b}}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{font-family:"Bricolage Grotesque",system-ui,sans-serif;background:var(--bg);color:var(--ink);min-height:100vh;display:flex;flex-direction:column;line-height:1.5}
+header{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(16px,4vw,40px);border-bottom:1px solid var(--line)}
+header b{font-weight:800;font-size:1.05rem;letter-spacing:-.01em}
+button{font:inherit;cursor:pointer}
+.ghost{background:none;border:1.5px solid var(--ink);color:var(--ink);border-radius:999px;padding:8px 16px;font-weight:600}
+.ghost:hover{background:var(--ink);color:var(--bg)}
+main{flex:1;display:grid;place-items:center;padding:clamp(16px,4vw,40px)}
+.screen{display:none;width:100%;max-width:640px;animation:in .3s ease}
+.screen.on{display:block}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@media (prefers-reduced-motion:reduce){.screen{animation:none}}
+h1{font-size:clamp(2rem,7vw,3.4rem);line-height:1.05;letter-spacing:-.03em;font-weight:800;margin:0 0 16px}
+h2{font-size:clamp(1.3rem,4.5vw,1.8rem);line-height:1.25;letter-spacing:-.02em;margin:0 0 22px}
+p.lead{color:var(--soft);font-size:1.1rem;margin:0 0 28px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:clamp(20px,5vw,34px)}
+.primary{background:var(--acc);color:#fff;border:0;border-radius:var(--r);padding:14px 26px;font-weight:600;font-size:1rem}
+.primary:hover{filter:brightness(1.1)}
+.primary:disabled{opacity:.5;cursor:not-allowed}
+.opts{display:grid;gap:10px;margin-bottom:6px}
+.opt{text-align:left;background:var(--bg);color:var(--ink);border:1.5px solid var(--line);border-radius:var(--r);padding:15px 18px;font-weight:600;font-size:1rem;transition:border-color .15s,background .15s}
+.opt:hover{border-color:var(--acc)}
+.opt.sel{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 14%,var(--card))}
+textarea{width:100%;min-height:110px;margin:14px 0;padding:12px 14px;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:var(--r);resize:vertical}
+textarea:focus,input:focus{outline:2px solid var(--acc);outline-offset:1px}
+label{font-weight:600;font-size:.95rem}
+.hide{display:none!important}
+.msg{font-size:1.4rem;font-weight:600;line-height:1.35}
+.msg.warn{color:var(--warn)}
+.err{color:var(--warn);font-size:.9rem;min-height:1.2em;margin:6px 0 0}
+/* modal */
+.modal{position:fixed;inset:0;background:rgba(10,15,30,.55);display:none;align-items:flex-start;justify-content:center;padding:max(16px,env(safe-area-inset-top)) 16px 16px;overflow-y:auto;z-index:10}
+.modal.on{display:flex}
+.panel{background:var(--card);border-radius:var(--r);width:100%;max-width:720px;margin:auto;padding:clamp(18px,4vw,30px)}
+.panel input{width:100%;padding:12px 14px;margin:10px 0;font:inherit;color:var(--ink);background:var(--bg);border:1.5px solid var(--line);border-radius:var(--r)}
+.row{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.total{font-size:2.6rem;font-weight:800;letter-spacing:-.03em;line-height:1}
+.grp{border-top:1px solid var(--line);padding-top:16px;margin-top:20px}
+.grp h3{margin:0 0 12px;font-size:1.05rem}
+.bar{display:grid;grid-template-columns:80px 1fr 34px;gap:10px;align-items:center;margin:6px 0;font-size:.95rem}
+.bar i{display:block;height:12px;border-radius:6px;background:var(--acc)}
+.bar span{background:var(--bg);border-radius:6px;overflow:hidden}
+.just{font-size:.92rem;color:var(--soft);border-left:3px solid var(--line);padding:4px 0 4px 12px;margin:8px 0}
+.just small{display:block;opacity:.8}
+@media (max-width:420px){.bar{grid-template-columns:64px 1fr 28px}}
+</style>
+</head>
+<body>
+<header>
+  <b>¿Yo decidí o me hicieron decidir?</b>
+  <button class="ghost" id="btnAdmin">Ver respuestas</button>
+</header>
+
+<main>
+  <!-- Inicio -->
+  <section class="screen on" id="s-inicio">
+    <h1>¿Hay algún peligro a largo plazo de la manipulación genética?</h1>
+    <p class="lead">Responde una pregunta y descubre cómo decides tú.</p>
+    <button class="primary" id="btnStart">Comenzar</button>
+  </section>
+
+  <!-- Pregunta 1 -->
+  <section class="screen" id="s-q1">
+    <div class="card">
+      <h2>¿Si una familia tiene una enfermedad hereditaria y tienes la tecnología para eliminar el gen responsable, pero hay una probabilidad de efectos adversos, lo harías?</h2>
+      <div class="opts" id="o1">
+        <button class="opt" data-v="si">Sí</button>
+        <button class="opt" data-v="no">No</button>
+        <button class="opt" data-v="depende">Depende</button>
+      </div>
+      <div id="dep" class="hide">
+        <label for="just">Justifica tu respuesta</label>
+        <textarea id="just" maxlength="1000" placeholder="Escribe aquí por qué depende…"></textarea>
+        <button class="primary" id="btnDep">Enviar</button>
+      </div>
+      <p class="err" id="e1"></p>
+    </div>
+  </section>
+
+  <!-- Pregunta 2 -->
+  <section class="screen" id="s-q2">
+    <div class="card">
+      <h2>Después de unas cuantas generaciones terminó afectando la asimilación de glucosa en sangre, ocasionando diabetes tipo 1. ¿Cambiarías tu opción si pudieras?</h2>
+      <div class="opts" id="o2">
+        <button class="opt" data-v="si">Sí</button>
+        <button class="opt" data-v="no">No</button>
+      </div>
+      <p class="err" id="e2"></p>
+    </div>
+  </section>
+
+  <!-- Finales -->
+  <section class="screen" id="s-gracias"><div class="card"><p class="msg">Gracias por participar.</p></div></section>
+  <section class="screen" id="s-peligro"><div class="card"><p class="msg warn">Esos son los peligros de la manipulación genética.</p></div></section>
+</main>
+
+<!-- Modal admin -->
+<div class="modal" id="modal" role="dialog" aria-modal="true" aria-label="Respuestas">
+  <div class="panel">
+    <div class="row"><h2 style="margin:0">Respuestas</h2><button class="ghost" id="btnClose">Cerrar</button></div>
+    <div id="login">
+      <label for="pw">Contraseña</label>
+      <input type="password" id="pw" autocomplete="off">
+      <button class="primary" id="btnLogin">Entrar</button>
+      <p class="err" id="ep"></p>
+    </div>
+    <div id="data" class="hide"></div>
+  </div>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const state = { q1: null, q2: null };
+const API = "/api/respuestas";
+
+function show(id) {
+  document.querySelectorAll(".screen").forEach((s) => s.classList.remove("on"));
+  $(id).classList.add("on");
+  window.scrollTo(0, 0);
+}
+
+async function guardar(justificacion) {
+  try {
+    const r = await fetch(API, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ q1: state.q1, justificacion: justificacion || "", q2: state.q2 }),
+    });
+    return r.ok;
+  } catch { return false; }
+}
+
+$("btnStart").onclick = () => show("s-q1");
+
+// Pregunta 1
+$("o1").onclick = async (e) => {
+  const b = e.target.closest(".opt"); if (!b) return;
+  [...$("o1").children].forEach((x) => x.classList.toggle("sel", x === b));
+  state.q1 = b.dataset.v;
+  $("e1").textContent = "";
+  $("dep").classList.toggle("hide", state.q1 !== "depende");
+  if (state.q1 === "no") {
+    if (!(await guardar())) { $("e1").textContent = "No se pudo guardar tu respuesta. Intenta de nuevo."; return; }
+    show("s-gracias");
+  } else if (state.q1 === "si") {
+    show("s-q2");
+  } else {
+    $("just").focus();
+  }
+};
+
+$("btnDep").onclick = async () => {
+  const t = $("just").value.trim();
+  if (!t) { $("e1").textContent = "Escribe tu justificación antes de enviar."; return; }
+  $("btnDep").disabled = true;
+  const ok = await guardar(t);
+  $("btnDep").disabled = false;
+  if (!ok) { $("e1").textContent = "No se pudo guardar tu respuesta. Intenta de nuevo."; return; }
+  show("s-gracias");
+};
+
+// Pregunta 2
+$("o2").onclick = async (e) => {
+  const b = e.target.closest(".opt"); if (!b) return;
+  state.q2 = b.dataset.v;
+  if (!(await guardar())) { $("e2").textContent = "No se pudo guardar tu respuesta. Intenta de nuevo."; return; }
+  show(state.q2 === "si" ? "s-peligro" : "s-gracias");
+};
+
+// Admin
+$("btnAdmin").onclick = () => { $("modal").classList.add("on"); $("pw").focus(); };
+$("btnClose").onclick = () => { $("modal").classList.remove("on"); $("data").classList.add("hide"); $("login").classList.remove("hide"); $("pw").value = ""; $("ep").textContent = ""; };
+$("pw").onkeydown = (e) => { if (e.key === "Enter") $("btnLogin").click(); };
+
+$("btnLogin").onclick = async () => {
+  $("ep").textContent = "";
+  try {
+    const r = await fetch(API, { headers: { "x-password": $("pw").value } });
+    if (r.status === 401) { $("ep").textContent = "Contraseña incorrecta."; return; }
+    if (!r.ok) throw 0;
+    render(await r.json());
+    $("login").classList.add("hide");
+    $("data").classList.remove("hide");
+  } catch { $("ep").textContent = "No se pudieron cargar las respuestas."; }
+};
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const nom = { si: "Sí", no: "No", depende: "Depende" };
+
+function barras(items, key, opts) {
+  const total = items.length || 1;
+  return opts.map((o) => {
+    const n = items.filter((x) => x[key] === o).length;
+    return `<div class="bar"><span>${nom[o]}</span><span><i style="width:${(n / total) * 100}%"></i></span><b>${n}</b></div>`;
+  }).join("");
+}
+
+function render(items) {
+  const q2 = items.filter((x) => x.q2);
+  const deps = items.filter((x) => x.q1 === "depende");
+  $("data").innerHTML = `
+    <p style="margin:16px 0 0;color:var(--soft)">Personas que respondieron</p>
+    <div class="total">${items.length}</div>
+    <div class="grp">
+      <h3>Pregunta 1: ¿Eliminarías el gen responsable pese al riesgo de efectos adversos?</h3>
+      ${barras(items, "q1", ["si", "no", "depende"])}
+    </div>
+    <div class="grp">
+      <h3>Justificaciones de quienes respondieron «Depende» (${deps.length})</h3>
+      ${deps.length ? deps.map((d) => `<div class="just">${esc(d.justificacion)}<small>${new Date(d.fecha).toLocaleString("es")}</small></div>`).join("") : '<p style="color:var(--soft)">Aún no hay justificaciones.</p>'}
+    </div>
+    <div class="grp">
+      <h3>Pregunta 2: ¿Cambiarías tu opción tras la diabetes tipo 1? (${q2.length} respuestas)</h3>
+      ${barras(q2, "q2", ["si", "no"])}
+    </div>`;
+}
+</script>
+</body>
+</html>
